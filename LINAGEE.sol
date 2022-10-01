@@ -133,11 +133,11 @@ contract LinageeWrapper is ERC721 {
     // ERC721 standard compliance. We return whatever content is stored for the tokenId / name
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
-        string memory content = string(abi.encodePacked(LINAGEE.content(bytes32(tokenId))));
-        return content;
+        string memory _content = string(abi.encodePacked(LINAGEE.content(bytes32(tokenId))));
+        return _content;
     }
 
-    // WRAPPERS FOR LINAGEE FUNCTIONS
+    // WRAPPERS FOR LINAGEE FUNCTIONS ('WRITE' mutability)
     function setSubRegistrar(bytes32 _name, address _registrar) external onlyOwnerOf(uint256(_name)) {
         LINAGEE.setSubRegistrar(_name, _registrar);
     }
@@ -150,5 +150,31 @@ contract LinageeWrapper is ERC721 {
     // unclear on what this function is for
     function register(bytes32 _name) external onlyOwnerOf(uint256(_name)) returns (address) {
         return LINAGEE.register(_name);
+    }
+
+    // WRAPPERS FOR LINAGEE FUNCTIONS ('READ' MUTABILITY)
+    function name(address _owner) external view returns (bytes32) {
+        return LINAGEE.name(_owner);
+    }
+
+    function owner(bytes32 _name) external view returns (address) {
+        address _owner = LINAGEE.owner(_name);
+        if (_owner == address(this)) {
+            return ownerOf(uint256(_name));
+        } else {
+            return _owner;
+        }
+    }
+
+    function content(bytes32 _name) external view returns (bytes32) {
+        return LINAGEE.content(_name);
+    }
+
+    function addr(bytes32 _name) external view returns (address) {
+        return LINAGEE.addr(_name);
+    }
+
+    function subRegistrar(bytes32 _name) external view returns(address) {
+        return LINAGEE.subRegistrar(_name);
     }
 }
